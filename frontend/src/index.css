@@ -1,0 +1,22 @@
+@import "tailwindcss";
+
+.scroll-container {
+  height: 100vh;       /* Full viewport height */
+  overflow-y: scroll;  /* Enable vertical scroll */
+  scroll-snap-type: y mandatory; /* Snap on Y axis */
+}
+
+.snap-section {
+  height: 100vh;          /* Each section full height */
+  scroll-snap-align: start; /* Snap at start of section */
+}
+
+.custom-scroll {
+  scrollbar-width: none;
+  /* Firefox */
+}
+
+.custom-scroll::-webkit-scrollbar {
+  display: none;
+  /* Hide scrollbar for Webkit browsers (Chrome, Safari) */
+}
