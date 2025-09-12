@@ -20,3 +20,7 @@
   display: none;
   /* Hide scrollbar for Webkit browsers (Chrome, Safari) */
 }
+
+.gradient-border:hover {
+  border-image: linear-gradient(to right, #a78bfa, #60a5fa) 1;
+}
