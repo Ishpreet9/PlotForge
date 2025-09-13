@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { MdKeyboardArrowRight } from "react-icons/md";
 import { IoSend } from "react-icons/io5";
+import { RxCross2 } from 'react-icons/rx';
 
 
 const Create = () => {
@@ -43,8 +44,8 @@ const Create = () => {
           <div className={`absolute -bottom-[1.4vw] w-full left-0 flex justify-start items-center translate-y-[100%]`}>
             <button onClick={() => setShowAddNode(!showAddNode)} className={`bg-neutral-700/30 border-2 border-neutral-500 px-[1vw] py-[0.5vw] text-lg font-semibold text-white ${showAddNode ? 'hidden' : 'block'} cursor-pointer transition-all duration-300`}>Add Next Node +</button>
             <div className={`${showAddNode ? 'opacity-100 w-full' : 'opacity-0'} flex justify-center items-center border-[0.15vw] border-neutral-400 focus-within:border-white rounded-[0.5vw] bg-neutral-700/40 transition-all duration-500`}>
-              <span>
-
+              <span onClick={()=>setShowAddNode(false)} className='border-[0.15vw] border-neutral-500 hover:border-violet-400 rounded-[0.3vw] ml-[0.5vw] cursor-pointer transition-all duration-300'>
+                <RxCross2 className='text-[2vw] hover:text-violet-400 text-neutral-500 transition-all duration-300'/>
               </span>
               <input type="text" className='text-lg h-full w-[94%] px-[2vw] py-[0.7vw] text-white placeholder:text-neutral-300 outline-none' placeholder='Enter what happens next, to continue your storyline...' />
               <span className='h-full flex-1 py-[0.5vw] flex justify-center items-center text-neutral-200 hover:text-blue-400 cursor-pointer transition-all duration-300'>
