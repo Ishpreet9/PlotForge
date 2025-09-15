@@ -1,8 +1,11 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { NavLink } from 'react-router-dom';
 import { RxCross2 } from 'react-icons/rx';
+import axios from 'axios';
 
 const Home = () => {
+
+  const backendUrl = "http://localhost:4000";
 
   type howItWorksType = {
     title: string,
@@ -24,46 +27,75 @@ const Home = () => {
     }
   ];
 
-  const prevIdeas: string[] = [
-    "A world where dreams can be traded as currency",
-    "A detective who solves crimes through memories",
-    "An AI gaining consciousness and exploring human emotions",
-    "A hidden city under the ocean inhabited by humans",
-    "A time traveler stuck in a loop trying to prevent a disaster",
-    "A musician whose songs can control reality",
-    "A society where emotions are illegal",
-    "A post-apocalyptic world where plants rule",
-    "A young inventor building machines to communicate with animals",
-    "A cursed book that changes the reader's life with each page"
-  ];
+  const [prevIdeas, setPrevIdeas] = useState<string[]>(
+    [
+      "A world where dreams can be traded as currency",
+      "A detective who solves crimes through memories",
+      "An AI gaining consciousness and exploring human emotions",
+      "A hidden city under the ocean inhabited by humans",
+      "A time traveler stuck in a loop trying to prevent a disaster",
+      "A musician whose songs can control reality",
+      "A society where emotions are illegal",
+      "A post-apocalyptic world where plants rule",
+      "A young inventor building machines to communicate with animals",
+      "A cursed book that changes the reader's life with each page"
+    ]
+  );
 
-  const generatedIdeas: string[] = [
-    "A parallel universe where humans can swap bodies",
-    "A city where memories are stored in physical objects",
-    "A warrior who fights using illusions instead of weapons",
-    "An AI detective solving crimes in a virtual world",
-    "A child who discovers they can manipulate time with drawings",
-    "A hidden library that contains the future instead of the past",
-    "A world where music can alter the laws of physics",
-    "A society where dreams are broadcasted publicly",
-    "A scientist communicating with plants to prevent disasters",
-    "A traveler who collects forgotten stories from abandoned towns"
-  ];
+  const [generatedIdeas, setGeneratedIdeas] = useState<string[]>([]);
+
+  const getInitialIdeas = async () => {
+    try {
+      const response = await axios.post(backendUrl + '/api/story/initial-ideas', {}, { withCredentials: true });
+      if (response.data.success) {
+        console.log("GetInitialIdeas working");
+        const finalArray = response.data.message;
+        setPrevIdeas(finalArray);
+      }
+      else {
+        console.log("Error generating initial ideas");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  const getSimilarIdeas = async () => {
+    try {
+      const response = await axios.post(backendUrl + '/api/story/similar-ideas', {userIdea: idea}, { withCredentials: true });
+      if(response.data.success)
+      {
+        console.log("GetSimilarIdeas working");
+        console.log(response.data.message);
+        const finalArray = response.data.message;
+        setGeneratedIdeas(finalArray);
+      }
+      else{
+        console.log("Error generating similar ideas");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   const [idea, setIdea] = useState<string>("");
   const [showInitialIdeaBox, seetShowInitialIdeaBox] = useState<boolean>(false);
+
+  useEffect(() => {
+    getInitialIdeas();
+  }, [])
 
   return (
     <div className='scroll-container overflow-y-scroll custom-scroll snap-y snap-mandatory h-screen bg-neutral-800'>
       <div className='relative w-full flex flex-col justify-center items-center gap-[3vw] snap-section'>
         <div className={`${showInitialIdeaBox ? 'opacity-100' : 'opacity-0 pointer-events-none'} absolute flex justify-center items-center z-30 w-full h-full inset-0 backdrop-blur-sm transition-opacity duration-300`}>
           <div className='relative flex flex-col justify-start items-start gap-[2.1vw] w-[82vw] h-[82vh] py-[2vw] px-[3.5vw] bg-black/50 rounded-[0.5vw] text-white'>
-          <button onClick={()=>seetShowInitialIdeaBox(false)} className='absolute top-[1vw] right-[0.9vw] sm:p-[0.25vw] p-[0.3rem] border-2 border-transparent hover:border-neutral-400 rounded-lg cursor-pointer transition-all duration-300'>
-            <RxCross2 size={32} className='text-white' />
-          </button>
+            <button onClick={() => seetShowInitialIdeaBox(false)} className='absolute top-[1vw] right-[0.9vw] sm:p-[0.25vw] p-[0.3rem] border-2 border-transparent hover:border-neutral-400 rounded-lg cursor-pointer transition-all duration-300'>
+              <RxCross2 size={32} className='text-white' />
+            </button>
             <span className='text-2xl w-full flex justify-center items-center font-semibold'>Initial Idea</span>
             <textarea onChange={(e) => setIdea(e.target.value)} value={idea} className='w-full text-xl bg-neutral-700/30 placeholder:text-neutral-400 h-[20vh] px-[1.5vw] py-[0.9vw] rounded-[0.5vw] border-[0.13vw] border-neutral-500 outline-none focus:border-neutral-200' placeholder='What is your initial idea for the storyline ?' name="" id=""></textarea>
-            <button className={`text-lg font-medium px-[1vw] py-[0.4vw] bg-black/70 border-[0.12vw] ${idea ? 'text-white bg-gradient-to-r from-violet-400/30 to-blue-400/30 border-violet-400 hover:border-blue-400 hover:from-blue-400/30 hover:to-violet-400/30 cursor-pointer' : 'border-neutral-600 text-neutral-600'} transition-all duration-500 rounded-[0.3vw]`}>
+            <button onClick={()=>getSimilarIdeas()} className={`text-lg font-medium px-[1vw] py-[0.4vw] bg-black/70 border-[0.12vw] ${idea ? 'text-white bg-gradient-to-r from-violet-400/30 to-blue-400/30 border-violet-400 hover:border-blue-400 hover:from-blue-400/30 hover:to-violet-400/30 cursor-pointer' : 'border-neutral-600 text-neutral-600 pointer-events-none'} transition-all duration-500 rounded-[0.3vw]`}>
               Generate Similar Ideas
             </button>
             <div className='flex flex-col justify-start items-center gap-[1vw] w-full max-h-[23vh] overflow-scroll custom-scroll py-[0.1vw]'>
@@ -104,7 +136,7 @@ const Home = () => {
           <h1 className='text-[3.4vw] font-bold bg-gradient-to-r from-violet-400 to-blue-400 bg-clip-text text-transparent'>Forge Your Own Stories</h1>
           <span className='text-white font-semibold text-[1.7vw]'>"Don't Generate Stories, Build Them"</span>
         </div>
-        <button onClick={()=>seetShowInitialIdeaBox(true)} className='relative flex justify-center min-w-[230px] min-h-[65px] items-center rounded-[0.35vw] overflow-hidden border-[0.2vw] border-transparent hover:border-neutral-200 font-semibold text-white transition-all duration-500 group cursor-pointer'>
+        <button onClick={() => seetShowInitialIdeaBox(true)} className='relative flex justify-center min-w-[230px] min-h-[65px] items-center rounded-[0.35vw] overflow-hidden border-[0.2vw] border-transparent hover:border-neutral-200 font-semibold text-white transition-all duration-500 group cursor-pointer'>
           <div className='absolute bg-gradient-to-r from-violet-400 to-blue-400 w-full h-full group-hover:opacity-0 transition-opacity duration-500'></div>
           <div className='absolute bg-gradient-to-r from-blue-400 to-violet-400 w-full h-full opacity-0 group-hover:opacity-100 transition-opacity duration-500'></div>
           <span className='absolute text-2xl group-hover:scale-110 transition-all duration-500'>
