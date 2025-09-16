@@ -1,11 +1,16 @@
-import React, { useEffect, useState } from 'react'
-import { NavLink } from 'react-router-dom';
+import { useContext, useEffect, useState } from 'react'
+import { NavLink, useNavigate } from 'react-router-dom';
 import { RxCross2 } from 'react-icons/rx';
 import axios from 'axios';
+import { AppContext } from '../../contexts/AppContext';
 
 const Home = () => {
 
-  const backendUrl = "http://localhost:4000";
+  const navigate = useNavigate();
+
+  const context = useContext(AppContext);
+  if (!context) throw new Error("AppContext must be used within AppProvider");
+  const { backendUrl } = context;
 
   type howItWorksType = {
     title: string,
@@ -62,19 +67,27 @@ const Home = () => {
 
   const getSimilarIdeas = async () => {
     try {
-      const response = await axios.post(backendUrl + '/api/story/similar-ideas', {userIdea: idea}, { withCredentials: true });
-      if(response.data.success)
-      {
+      const response = await axios.post(backendUrl + '/api/story/similar-ideas', { userIdea: idea }, { withCredentials: true });
+      if (response.data.success) {
         console.log("GetSimilarIdeas working");
         console.log(response.data.message);
         const finalArray = response.data.message;
         setGeneratedIdeas(finalArray);
       }
-      else{
+      else {
         console.log("Error generating similar ideas");
       }
     } catch (error) {
       console.log(error);
+    }
+  }
+
+  const handleContinueClick = () => {
+    if (idea === "") {
+      console.log('Idea can not be empty');
+    }
+    else {
+      navigate("/create", { state: { idea: idea } });
     }
   }
 
@@ -95,12 +108,12 @@ const Home = () => {
             </button>
             <span className='text-2xl w-full flex justify-center items-center font-semibold'>Initial Idea</span>
             <textarea onChange={(e) => setIdea(e.target.value)} value={idea} className='w-full text-xl bg-neutral-700/30 placeholder:text-neutral-400 h-[20vh] px-[1.5vw] py-[0.9vw] rounded-[0.5vw] border-[0.13vw] border-neutral-500 outline-none focus:border-neutral-200' placeholder='What is your initial idea for the storyline ?' name="" id=""></textarea>
-            <button onClick={()=>getSimilarIdeas()} className={`text-lg font-medium px-[1vw] py-[0.4vw] bg-black/70 border-[0.12vw] ${idea ? 'text-white bg-gradient-to-r from-violet-400/30 to-blue-400/30 border-violet-400 hover:border-blue-400 hover:from-blue-400/30 hover:to-violet-400/30 cursor-pointer' : 'border-neutral-600 text-neutral-600 pointer-events-none'} transition-all duration-500 rounded-[0.3vw]`}>
+            <button onClick={() => getSimilarIdeas()} className={`text-lg font-medium px-[1vw] py-[0.4vw] bg-black/70 border-[0.12vw] ${idea ? 'text-white bg-gradient-to-r from-violet-400/30 to-blue-400/30 border-violet-400 hover:border-blue-400 hover:from-blue-400/30 hover:to-violet-400/30 cursor-pointer' : 'border-neutral-600 text-neutral-600 pointer-events-none'} transition-all duration-500 rounded-[0.3vw]`}>
               Generate Similar Ideas
             </button>
             <div className='flex flex-col justify-start items-center gap-[1vw] w-full max-h-[23vh] overflow-scroll custom-scroll py-[0.1vw]'>
               {(generatedIdeas.length > 0 ? generatedIdeas : prevIdeas).map((item, index) => (
-                <div
+                <div onClick={() => setIdea(item)}
                   key={index}
                   className='w-full px-[1vw] py-[0.4vw] text-md rounded-[0.4vw] 
                bg-gradient-to-r from-neutral-700 to-neutral-700 
@@ -112,13 +125,13 @@ const Home = () => {
               ))}
             </div>
             <div className='w-full flex justify-center items-center'>
-              <NavLink to={'/create'} className='relative flex justify-center min-w-[180px] min-h-[50px] items-center rounded-[0.35vw] overflow-hidden border-[0.2vw] border-transparent hover:border-neutral-200 font-semibold text-white transition-all duration-500 group cursor-pointer'>
+              <button onClick={() => handleContinueClick()} className='relative flex justify-center min-w-[180px] min-h-[50px] items-center rounded-[0.35vw] overflow-hidden border-[0.2vw] border-transparent hover:border-neutral-200 font-semibold text-white transition-all duration-500 group cursor-pointer'>
                 <div className='absolute bg-gradient-to-r from-violet-400 to-blue-400 w-full h-full group-hover:opacity-0 transition-opacity duration-500'></div>
                 <div className='absolute bg-gradient-to-r from-blue-400 to-violet-400 w-full h-full opacity-0 group-hover:opacity-100 transition-opacity duration-500'></div>
                 <span className='absolute text-xl group-hover:scale-110 transition-all duration-500'>
                   Continue
                 </span>
-              </NavLink>
+              </button>
             </div>
 
           </div>

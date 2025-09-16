@@ -1,6 +1,7 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Home from './pages/Home';
 import Create from './pages/Create';
+import Temp from './pages/Temp';
 
 const App = () => {
 
@@ -12,6 +13,10 @@ const App = () => {
     {
       path: '/create',
       element: <Create/>
+    },
+    {
+      path: '/temp',
+      element: <Temp/>
     }
   ])
 
