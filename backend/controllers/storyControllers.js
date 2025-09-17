@@ -23,7 +23,7 @@ Make sure the output is a valid JSON array with exactly 5 story ideas and do not
 
     const response = await ai.models.generateContent(
       {
-        model: "gemini-2.0-flash-lite",
+        model: "gemini-2.5-flash",
         contents: prompt,
         temperature: 0.7
       }
@@ -79,7 +79,7 @@ Return ONLY the JSON array.
 
     const response = await ai.models.generateContent(
       {
-        model: "gemini-2.0-flash-lite",
+        model: "gemini-2.5-flash",
         contents: prompt,
         temperature: 0.7
       }
@@ -135,7 +135,7 @@ Return ONLY the JSON array.
 
     const response = await ai.models.generateContent(
       {
-        model: "gemini-2.0-flash-lite",
+        model: "gemini-2.5-flash",
         contents: prompt,
         temperature: 0.7
       }
@@ -158,7 +158,7 @@ Return ONLY the JSON array.
 const generateNextChoices = async (req, res) => {
   const { storyEvents } = req.body;
   console.log(storyEvents);
-  const stEvents =  JSON.stringify(storyEvents, null, 2);
+  const stEvents = JSON.stringify(storyEvents, null, 2);
   console.log(storyEvents);
   try {
     const prompt = `
@@ -202,7 +202,7 @@ Return ONLY the JSON array.
 
     const response = await ai.models.generateContent(
       {
-        model: "gemini-2.0-flash-lite",
+        model: "gemini-2.5-flash",
         contents: prompt,
         temperature: 0.7
       }
@@ -222,4 +222,67 @@ Return ONLY the JSON array.
   }
 }
 
-export { initialIdeas, generateSimilarIdeas, generateInitialChoices, generateNextChoices };
+const generateFullStory = async (req, res) => {
+  const { storyEvents } = req.body;
+  const stEvents = JSON.stringify(storyEvents, null, 2);
+
+  try {
+    const prompt = `
+You are a story generator.
+
+You are given an array of events that describe a story in progressive order.
+
+Events:
+${stEvents}
+
+Instructions:
+1. Create a single compelling story title based on the events.
+2. Write the complete story in prose form by combining all the events into a smooth narrative.
+3. Do NOT skip or add extra events outside of the given ones.
+4. Make sure the story flows naturally and reads like a short story.
+5. Return ONLY a valid JSON array with exactly two strings:
+   - The first string is the title.
+   - The second string is the complete story.
+
+Example:
+
+Events: [
+  "The child finds a mysterious key in the attic",
+  "The dog starts barking at the locked basement door",
+  "The child slowly approaches the door"
+]
+
+Output:
+[
+  "The Secret in the Basement",
+  "One rainy afternoon, a curious child stumbled upon a mysterious key in the dusty attic. As they turned it over in their hand, the dog began barking furiously at the locked basement door. Heart racing, the child clutched the key tightly and slowly approached the door, unsure of what secrets might be waiting beyond."
+]
+
+Now, generate the JSON array (title + story) for these events: ${stEvents}
+Return ONLY the JSON array.
+    `;
+
+    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: prompt,
+      temperature: 0.7
+    });
+
+    let raw = response.text;
+
+    // remove code block markers
+    raw = raw.replace(/```json\n?/, "").replace(/```/, "");
+
+    const finalArray = JSON.parse(raw);
+    res.status(200).json({ success: true, message: finalArray });
+
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ message: "Error generating full story" });
+  }
+};
+
+
+export { initialIdeas, generateSimilarIdeas, generateInitialChoices, generateNextChoices, generateFullStory };
