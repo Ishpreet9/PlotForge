@@ -21,7 +21,7 @@ const Create = () => {
 
   const [customEvent, setCustomEvent] = useState<string>("");
 
-  const [showCompleteStoryBox, setShowCompleteStoryBox] = useState<boolean>(true);
+  const [showCompleteStoryBox, setShowCompleteStoryBox] = useState<boolean>(false);
   const [completeStory, setCompleteStory] = useState<string>("");
   const [storyTitle, setStoryTitle] = useState<string>("");
 
